@@ -1,12 +1,14 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "debian/bookworm64"
   config.vm.box_version = "12.20250126.1"
-
+  config.vm.synced_folder ".", "/vagrant", disabled: true
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = 512
+    vb.memory = 1024
     vb.cpus = 1
     vb.gui = false
   end
+
+  SCRIPT = "wget -qO- https://get.k3s.io | K3S_TOKEN=super_secret_token sh -"
 
   config.vm.define "vzurera-S" do |server|
     server.vm.hostname = "vzurera-S"
@@ -14,8 +16,10 @@ Vagrant.configure("2") do |config|
     server.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--name", "vzurera-S"]
     end
-
-    server.vm.provision "shell", path: "scripts/server.sh"
+    server.vm.provision "shell", inline: SCRIPT, env: {
+      "INSTALL_K3S_EXEC" => "server --node-ip=192.168.56.110 --disable=traefik --disable=servicelb --disable=metrics-server --disable=local-storage",
+      "K3S_KUBECONFIG_MODE" => "644"
+    }
   end
 
   config.vm.define "vzurera-SW" do |worker|
@@ -24,8 +28,8 @@ Vagrant.configure("2") do |config|
     worker.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--name", "vzurera-SW"]
     end
-
-    worker.vm.provision "shell", path: "scripts/worker.sh", env: {
+    worker.vm.provision "shell", inline: SCRIPT, env: {
+      "INSTALL_K3S_EXEC" => "agent --node-ip=192.168.56.111",
       "K3S_URL" => "https://192.168.56.110:6443"
     }
   end
