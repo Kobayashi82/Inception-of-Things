@@ -1,0 +1,17 @@
+*
+!.vscode
+!.vscode/**
+.vscode/launch.json
+.vscode/settings.json
+
+!doc
+!doc/**
+doc/Inception-of-Things\ 4.0.pdf
+
+!images
+!images/**
+
+!.gitignore
+!README.md
+!README_es.md
+!LICENSE
