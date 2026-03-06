@@ -8,6 +8,17 @@
 !doc/**
 doc/Inception-of-Things\ 4.0.pdf
 
+!src
+!src/**
+src/p1/token
+src/p1/.vagrant
+src/p2/token
+src/p2/.vagrant
+src/p3/token
+src/p3/.vagrant
+src/bonus/token
+src/bonus/.vagrant
+
 !images
 !images/**
 

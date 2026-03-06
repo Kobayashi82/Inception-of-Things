@@ -1,0 +1,33 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "debian/bookworm64"
+  config.vm.box_version = "12.20250126.1"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = 512
+    vb.cpus = 1
+    vb.gui = false
+  end
+
+  config.vm.define "vzurera-S" do |server|
+    server.vm.hostname = "vzurera-S"
+    server.vm.network "private_network", ip: "192.168.56.110"
+    server.vm.provider "virtualbox" do |vb|
+      vb.customize ["modifyvm", :id, "--name", "vzurera-S"]
+    end
+
+    server.vm.provision "shell", path: "scripts/server.sh"
+  end
+
+  config.vm.define "vzurera-SW" do |worker|
+    worker.vm.hostname = "vzurera-SW"
+    worker.vm.network "private_network", ip: "192.168.56.111"
+    worker.vm.provider "virtualbox" do |vb|
+      vb.customize ["modifyvm", :id, "--name", "vzurera-SW"]
+    end
+
+    worker.vm.provision "shell", path: "scripts/worker.sh", env: {
+      "K3S_URL" => "https://192.168.56.110:6443"
+    }
+  end
+
+end
