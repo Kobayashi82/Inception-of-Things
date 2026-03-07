@@ -70,6 +70,7 @@
 |-----------------------------------|---------------------------------------------|
 | `kubectl get nodes`               | Lista los nodos del cluster                 |
 | `kubectl get nodes -o wide`       | Lista los nodos con más detalle             |
+|
 
 ## Pods
 
@@ -80,6 +81,7 @@
 | `kubectl get pods -n [namespace]` | Lista los pods de un namespace concreto     |
 | `kubectl describe pod [name]`     | Detalle de un pod                           |
 | `kubectl logs [pod_name]`         | Logs de un pod                              |
+|
 
 ## Servicios e Ingress
 
@@ -88,6 +90,7 @@
 | `kubectl get services`            | Lista los servicios                         |
 | `kubectl get ingress`             | Lista los ingress                           |
 | `kubectl describe ingress [name]` | Detalle de un ingress                       |
+|
 
 ## General
 
@@ -98,6 +101,7 @@
 | `kubectl apply -f [file]`         | Aplica una configuración                    |
 | `kubectl delete -f [file]`        | Elimina una configuración                   |
 | `kubectl get namespaces`          | Lista los namespaces                        |
+|
 
 ## K3s
 
@@ -108,3 +112,24 @@
 | `systemctl status k3s-agent`      | Estado del agent                            |
 | `journalctl -fu k3s`              | Logs en tiempo real del server              |
 | `journalctl -fu k3s-agent`        | Logs en tiempo real del agent               |
+|
+
+# Curl
+
+| Comando                                   | Descripción                         |
+|-------------------------------------------|-------------------------------------|
+| `curl -H "Host: app1.com" 192.168.56.110` | Send request to IP with custom Host |
+|
+
+# Docker
+
+| Comando                                                                                    | Descripción              |
+|--------------------------------------------------------------------------------------------|--------------------------|
+| `docker build -t kobayashi82/iot-web-app:1.0.0 .`	                                         | Build image              |
+| `docker login`										                                     | Login to Docker          |
+| `docker push kobayashi82/iot-web-app:1.0.0`			                                     | Push image to Docker Hub |
+| `docker run -d -p 8080:80 --name web-app -e APP_NAME="test" kobayashi82/iot-web-app:1.0.0` | Start container          |
+| `docker stop web-app`								                                         | Stop container           |
+| `docker rm web-app`									                                     | Remove container         |
+| `docker rmi kobayashi82/iot-web-app:1.0.0`			                                     | Remove image             |
+|

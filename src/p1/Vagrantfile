@@ -3,18 +3,26 @@ Vagrant.configure("2") do |config|
   config.vm.box_version = "12.20250126.1"
   config.vm.synced_folder ".", "/vagrant", disabled: true
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = 1024
+    vb.memory = 512
     vb.cpus = 1
     vb.gui = false
   end
 
-  SCRIPT = "wget -qO- https://get.k3s.io | K3S_TOKEN=super_secret_token sh -"
+  SCRIPT = <<-SHELL
+    fallocate -l 1G /swapfile
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+    echo '/swapfile none swap sw 0 0' >> /etc/fstab
+    wget -qO- https://get.k3s.io | K3S_TOKEN=super_secret_token sh -s -
+  SHELL
 
   config.vm.define "vzurera-S" do |server|
     server.vm.hostname = "vzurera-S"
     server.vm.network "private_network", ip: "192.168.56.110"
     server.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--name", "vzurera-S"]
+      vb.customize ["modifyvm", :id, "--nested-hw-virt", "off"]
     end
     server.vm.provision "shell", inline: SCRIPT, env: {
       "INSTALL_K3S_EXEC" => "server --node-ip=192.168.56.110 --disable=traefik --disable=servicelb --disable=metrics-server --disable=local-storage",
@@ -27,6 +35,7 @@ Vagrant.configure("2") do |config|
     worker.vm.network "private_network", ip: "192.168.56.111"
     worker.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--name", "vzurera-SW"]
+      vb.customize ["modifyvm", :id, "--nested-hw-virt", "off"]
     end
     worker.vm.provision "shell", inline: SCRIPT, env: {
       "INSTALL_K3S_EXEC" => "agent --node-ip=192.168.56.111",
