@@ -1,7 +1,7 @@
 <div align="center">
 
 ![K3s](https://img.shields.io/badge/K3s-Cluster-brown?style=for-the-badge)
-![Vagrant](https://img.shields.io/badge/Vagrant-VMs-blue?style=for-the-badge)
+![Vagrant](https://img.shields.io/badge/Vagrant-VM-blue?style=for-the-badge)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-Ingress-orange?style=for-the-badge)
 
 *Laboratorio de sistemas y DevOps centrado en K3s, K3d y GitOps con Argo CD*
