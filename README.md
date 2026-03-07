@@ -1,11 +1,10 @@
-
 <div align="center">
 
-![Desktop](https://img.shields.io/badge/Desktop-brown?style=for-the-badge)
-![WordPress](https://img.shields.io/badge/WordPress-php--fpm-blue?style=for-the-badge)
-![MariaDB](https://img.shields.io/badge/MariaDB-Database-orange?style=for-the-badge)
+![K3s](https://img.shields.io/badge/K3s-Cluster-blue?style=for-the-badge)
+![Vagrant](https://img.shields.io/badge/Vagrant-VMs-1563FF?style=for-the-badge)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-Ingress-326CE5?style=for-the-badge)
 
-*Complete web services infrastructure with Docker and microservices orchestration*
+*Systems and DevOps lab focused on K3s, K3d, and GitOps with Argo CD*
 
 </div>
 
@@ -15,211 +14,209 @@
 
 # Inception of Things
 
-[README en Español](README_es.md)
+[README en Espanol](README_es.md)
 
-`Inception of Things` is a systems administration project aimed at expanding knowledge about virtualization using `Docker`. The project consists of creating a small infrastructure composed of different services under specific rules, all running in `Docker` containers orchestrated with `docker-compose`.
+`Inception of Things (IoT)` is a 42 systems project focused on Kubernetes fundamentals through progressive infrastructure exercises.
+This repository is organized by mandatory parts:
 
-## 🎯 Objectives
+- `p1`: K3s with Vagrant (server + worker)
+- `p2`: K3s with Ingress routing for three web apps
+- `p3`: K3d + Argo CD + GitOps (pending)
+- `bonus`: Local GitLab integration (pending)
 
-- Configure a complete infrastructure using Docker
-- Manage web services with NGINX, WordPress, and MariaDB
-- Configure SSL/TLS for secure connections
-- Implement additional services (bonus)
+## Status
 
-## 🏗️ Architecture
+- `Part 1 (p1)`: Implemented
+- `Part 2 (p2)`: Implemented
+- `Part 3 (p3)`: Not implemented yet
+- `Bonus`: Not implemented yet
 
-The infrastructure is composed of the following main services:
+## Objectives
 
-### Core Services
+- Understand K3s architecture and cluster bootstrapping
+- Configure VMs and private networking with Vagrant
+- Deploy multiple applications in Kubernetes
+- Route traffic by `Host` header through Ingress
+- Prepare a GitOps flow with Argo CD (Part 3)
 
-- `NGINX`: Web server with TLSv1.2/TLSv1.3 support
-- `WordPress`: Content management system to create and manage websites
-- `MariaDB`: Database for WordPress
+## Project Structure
 
-### Bonus Services
-
-- `Redis`: Cache for WordPress
-- `Adminer`: Database administration tool
-- `Portainer`: Docker admin panel
-- `Static Website`: Simple HTML/CSS/JS website
-- `VSFTPD`: FTP server pointing to the WordPress volume
-
-## 📁 Project Structure
-
-```
-inception/
-├── Makefile
-└── srcs/
-    ├── docker-compose.yml
-    ├── env_template
-    └── requirements/
-        ├── nginx/
-        │   ├── Dockerfile
-        │   └── conf/
-        │       ├── config.sh
-        │       ├── favicon.ico
-        │       ├── index.html
-        │       ├── nginx.conf
-        │       └── inception/
-        │           ├── index.html
-        │           ├── images/
-        │           └── assets/
-        │               ├── css/
-        │               ├── js/
-        │               └── sass/
-        ├── wordpress/
-        │   ├── Dockerfile
-        │   └── conf/
-        │       └── config.sh
-        ├── mariadb/
-        │   ├── Dockerfile
-        │   └── conf/
-        │       └── config.sh
-        └── bonus/
-            ├── redis/
-            │   └── Dockerfile
-            ├── vsftpd/
-            │   ├── Dockerfile
-            │   └── conf/
-            │       └── vsftpd.conf
-            ├── adminer/
-            │   └── Dockerfile
-            └── portainer/
-                └── Dockerfile
+```text
+Inception-of-Things/
+├── LICENSE
+├── README.md
+├── README_es.md
+├── doc/
+│   └── Notes.md
+├── images/
+└── src/
+    ├── p1/
+    │   └── Vagrantfile
+    ├── p2/
+    │   ├── Vagrantfile
+    │   ├── config/
+    │   │   ├── deployments.yaml
+    │   │   ├── ingress.yaml
+    │   │   └── services.yaml
+    │   ├── scripts/
+    │   │   └── server.sh
+    │   └── web/
+    │       ├── Dockerfile
+    │       ├── entrypoint.sh
+    │       └── html/
+    │           ├── index.html
+    │           └── main.css
+    ├── p3/
+    │   └── Notes.md
+    └── bonus/
+        └── Notes.md
 ```
 
-## ⚙️ Configuration
+## Part 1: K3s and Vagrant
 
-### Environment Variables
+`src/p1/Vagrantfile` creates two machines:
 
-The `.env` file must contain all sensitive variables:
+- `vzurera-S` at `192.168.56.110` (K3s server)
+- `vzurera-SW` at `192.168.56.111` (K3s worker)
 
-```env
-DOMAIN_NAME=localhost
-USER_NAME=user_name
-USER_PASS=user_pass
-ADMIN_NAME=admin_name
-ADMIN_PASS=admin_pass (12 char min)
+Current provisioning details:
+
+- Debian Bookworm box
+- 1 GB swap created on each VM
+- K3s installation via official install script
+- Shared token-based join (`K3S_TOKEN`)
+- Server started with reduced components:
+  - `--disable=traefik`
+  - `--disable=servicelb`
+  - `--disable=metrics-server`
+  - `--disable=local-storage`
+
+### Run Part 1
+
+```bash
+cd src/p1
+vagrant up
+vagrant status
+vagrant ssh vzurera-S
+kubectl get nodes -o wide
 ```
 
-## 🔧 Installation and Usage
+## Part 2: K3s and Three Applications
 
-### Installation steps
+`src/p2` provisions one VM (`vzurera-S`) with K3s server mode and applies Kubernetes manifests automatically.
 
-1. **Clone the repository**:
-   ```bash
-   git clone git@github.com:Kobayashi82/Inception.git
-   cd inception
-   ```
+### Deployed resources
 
-2. **Configure environment variables**:
-   ```bash
-   mv srcs/env_template srcs/.env
-   # Edit srcs/.env with your values
-   ```
+- `3 Deployments`:
+  - `app1` with `1` replica
+  - `app2` with `3` replicas
+  - `app3` with `1` replica
+- `3 Services` (ClusterIP)
+- `1 Ingress` with host-based routing:
+  - `app1.com` -> `app1-service`
+  - `app2.com` -> `app2-service`
+  - default route -> `app3-service`
 
-4. **Build and run**:
-   ```bash
-   make
-   ```
+All apps use image: `kobayashi82/iot-web-app:1.0.0`.
 
-5. **Access services**:
-   - WordPress: https://localhost/
-   - Adminer: https://localhost/adminer/
-   - Portainer: https://localhost/portainer/
-   - Static Website: https://localhost/inception/
-   - FTP: Connect to localhost:21 with credentials from the .env file
+### Run Part 2
 
-### Makefile commands
+```bash
+cd src/p2
+vagrant up
+vagrant ssh vzurera-S
+kubectl get nodes
+kubectl get deploy,svc,ingress
+```
 
-- `make`: Build and start all services
-- `make up`: Build and start all services
-- `make down`: Stop all containers
-- `make restart`: Restart all services
-- `make build`: Build container images
-- `make rebuild`: Rebuild images without cache
-- `make clean`: Remove images
-- `make iclean`: Remove images
-- `make vclean`: Remove volumes
-- `make nclean`: Remove the network
-- `make fclean`: Remove images, volumes, and network
-- `make fcclean`: Full cleanup including cache
-- `make evaluation`: Prepare the environment for evaluation
+### Hostname-based access test
 
-## 📊 Services and Ports
+Add host entries on your host machine:
 
-| Service   | Internal Port | External Port | Description                           |
-|-----------|---------------|---------------|---------------------------------------|
-| NGINX     | 443           | 443           | Main web server with SSL              |
-| WordPress | 9000          | -             | Web CMS service (web at /)            |
-| MariaDB   | 3306          | -             | Database                              |
-| Redis     | 6379          | -             | Cache                                 |
-| Adminer   | 8000          | -             | DB management (web at /adminer)       |
-| Portainer | 9000          | -             | Docker management (web at /portainer) |
-| Website   | -             | -             | Static website (web at /inception)    |
-| VSFTPD    | 21            | 21            | FTP server                            |
-| VSFTPD    | 30000-30009   | 30000-30009   | FTP passive ports                     |
+```text
+192.168.56.110 app1.com
+192.168.56.110 app2.com
+192.168.56.110 app3.com
+```
 
-## 🔒 Security Features
+Then test:
 
-- `SSL/TLS`: Only TLSv1.2 and TLSv1.3 allowed
-- `Single exposed port`: Web access only through port 443
-- `Environment variables`: No hard-coded credentials
-- `Non-default usernames`: Custom usernames for better security
-- `Network isolation`: Internal services not directly accessible from outside
-- `FTP security`: Configured with passive mode and restricted user access
+```bash
+curl -H "Host: app1.com" http://192.168.56.110
+curl -H "Host: app2.com" http://192.168.56.110
+curl -H "Host: anything-else" http://192.168.56.110
+```
 
-## 🎁 Bonus
+Expected behavior:
 
-### Redis Cache
-- Optimized cache for WordPress
-- Significant performance improvement
-- Automatic WordPress configuration
+- `Host: app1.com` shows app1
+- `Host: app2.com` shows app2 (served by 3 replicas)
+- any other host is routed to app3 by default
 
-### Adminer
-- Web interface for database administration
-- Custom themes
-- Secure access via NGINX
+## Part 3: K3d and Argo CD (Pending)
 
-### Portainer
-- Docker container management UI
-- Real-time monitoring of container performance
-- Easy access to logs and container configuration
-- Simplified container deployment and management
+Part 3 is not implemented yet in this repository.
 
-### Static Website
-- Project landing page with responsive design
-- Multilingual support (Spanish and English)
-- Direct links to all services
-- Modern design with CSS animations
-- Technologies: HTML5, CSS3, and JavaScript
+Planned scope based on the subject:
 
-### VSFTPD Server
-- Direct access to WordPress files
-- Secure configuration with specific users
+- Install prerequisites with scripts (Docker, k3d, kubectl, argocd CLI, etc.)
+- Create namespaces:
+  - `argocd`
+  - `dev`
+- Deploy Argo CD in-cluster
+- Connect Argo CD to a public GitHub repository
+- Auto-deploy an app in `dev` namespace
+- Validate version switch from `v1` to `v2` through Git changes
 
-## 📚 Useful Resources
+## Bonus: GitLab (Pending)
 
-- [Docker Documentation](https://docs.docker.com/)
-- [Docker Compose Documentation](https://docs.docker.com/compose/)
-- [NGINX Documentation](https://nginx.org/en/docs/)
-- [WordPress Documentation](https://wordpress.org/documentation/)
-- [MariaDB Documentation](https://mariadb.com/kb/en/documentation/)
-- [Redis Documentation](https://redis.io/documentation)
-- [VSFTPD Documentation](https://security.appspot.com/vsftpd.html)
-- [Adminer Documentation](https://www.adminer.org/en/)
-- [Portainer Documentation](https://docs.portainer.io/)
+Bonus is not implemented yet.
 
----
+Planned scope based on the subject:
 
-## 📄 License
+- Deploy local GitLab in `gitlab` namespace
+- Integrate GitLab with the Kubernetes/GitOps flow
+- Keep Part 3 workflow working with local GitLab
 
-This project is licensed under the WTFPL – [Do What the Fuck You Want to Public License](http://www.wtfpl.net/about/).
+## Evaluation Notes
 
----
+- Modern Linux distributions use predictable interface names (`enp0s8`, `enp0s9`, etc.) instead of `eth0/eth1`.
+- Check interfaces with:
+
+```bash
+ip a
+ip a show <interface_name>
+```
+
+- On macOS, use:
+
+```bash
+ifconfig
+```
+
+- Adapt network commands to your actual interface names.
+
+## Useful Commands
+
+```bash
+# VM lifecycle
+vagrant up
+vagrant halt
+vagrant destroy -f
+
+# Kubernetes checks
+kubectl get nodes -o wide
+kubectl get pods -A
+kubectl get svc,ingress
+kubectl describe ingress apps-ingress
+```
+
+## License
+
+This project is licensed under the WTFPL - [Do What the Fuck You Want to Public License](http://www.wtfpl.net/about/).
 
 <div align="center">
 
-**🐳 Developed as part of the 42 School curriculum 🐳**
+Developed as part of the 42 curriculum.
 
-*"We need to go deeper... into containerization"*
+</div>
