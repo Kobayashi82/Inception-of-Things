@@ -1,8 +1,8 @@
 <div align="center">
 
-![K3s](https://img.shields.io/badge/K3s-Cluster-blue?style=for-the-badge)
-![Vagrant](https://img.shields.io/badge/Vagrant-VMs-1563FF?style=for-the-badge)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-Ingress-326CE5?style=for-the-badge)
+![K3s](https://img.shields.io/badge/K3s-Cluster-brown?style=for-the-badge)
+![Vagrant](https://img.shields.io/badge/Vagrant-VMs-blue?style=for-the-badge)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-Ingress-orange?style=for-the-badge)
 
 *Laboratorio de sistemas y DevOps centrado en K3s, K3d y GitOps con Argo CD*
 
@@ -17,60 +17,11 @@
 [README in English](README.md)
 
 `Inception of Things (IoT)` es un proyecto de sistemas de 42 enfocado en fundamentos de Kubernetes mediante ejercicios de infraestructura progresivos.
-Este repositorio esta organizado por partes obligatorias:
 
 - `p1`: K3s con Vagrant (server + worker)
 - `p2`: K3s con enrutamiento Ingress para tres aplicaciones web
 - `p3`: K3d + Argo CD + GitOps (pendiente)
 - `bonus`: Integracion de GitLab local (pendiente)
-
-## Estado del Proyecto
-
-- `Parte 1 (p1)`: Implementada
-- `Parte 2 (p2)`: Implementada
-- `Parte 3 (p3)`: Aun no implementada
-- `Bonus`: Aun no implementado
-
-## Objetivos
-
-- Entender la arquitectura de K3s y el arranque de un cluster
-- Configurar maquinas virtuales y red privada con Vagrant
-- Desplegar multiples aplicaciones en Kubernetes
-- Enrutar trafico por cabecera `Host` usando Ingress
-- Preparar un flujo GitOps con Argo CD (Parte 3)
-
-## Estructura del Repositorio
-
-```text
-Inception-of-Things/
-├── LICENSE
-├── README.md
-├── README_es.md
-├── doc/
-│   └── Notes.md
-├── images/
-└── src/
-    ├── p1/
-    │   └── Vagrantfile
-    ├── p2/
-    │   ├── Vagrantfile
-    │   ├── config/
-    │   │   ├── deployments.yaml
-    │   │   ├── ingress.yaml
-    │   │   └── services.yaml
-    │   ├── scripts/
-    │   │   └── server.sh
-    │   └── web/
-    │       ├── Dockerfile
-    │       ├── entrypoint.sh
-    │       └── html/
-    │           ├── index.html
-    │           └── main.css
-    ├── p3/
-    │   └── Notes.md
-    └── bonus/
-        └── Notes.md
-```
 
 ## Parte 1: K3s y Vagrant
 
@@ -96,7 +47,6 @@ Detalles actuales del provisionado:
 ```bash
 cd src/p1
 vagrant up
-vagrant status
 vagrant ssh vzurera-S
 kubectl get nodes -o wide
 ```
@@ -129,9 +79,11 @@ kubectl get nodes
 kubectl get deploy,svc,ingress
 ```
 
-### Prueba de acceso por hostname
+### Acceso por hostname
 
-Agrega entradas en el archivo hosts de tu maquina anfitriona:
+Para probar el enrutamiento por hostname, tienes dos opciones:
+
+**Opción 1 — Navegador:** Añade las siguientes entradas a tu archivo de hosts:
 
 ```text
 192.168.56.110 app1.com
@@ -139,23 +91,26 @@ Agrega entradas en el archivo hosts de tu maquina anfitriona:
 192.168.56.110 app3.com
 ```
 
-Luego prueba:
+Luego abre `http://app1.com`, `http://app2.com`, `http://app3.com` o `http://192.168.56.110` en tu navegador.
+
+**Opción 2 — curl:** Pasa el header Host directamente:
 
 ```bash
 curl -H "Host: app1.com" http://192.168.56.110
 curl -H "Host: app2.com" http://192.168.56.110
-curl -H "Host: cualquier-otro" http://192.168.56.110
+curl -H "Host: app3.com" http://192.168.56.110
+curl http://192.168.56.110
 ```
 
 Comportamiento esperado:
 
-- `Host: app1.com` muestra app1
-- `Host: app2.com` muestra app2 (atendida por 3 replicas)
-- cualquier otro host se enruta a app3 por defecto
+- El host `app1.com` muestra `app1`
+- El host `app2.com` muestra `app2` (servido por 3 réplicas)
+- Cualquier otro host se enruta a `app3` por defecto
 
 ## Parte 3: K3d y Argo CD (Pendiente)
 
-La Parte 3 aun no esta implementada en este repositorio.
+La Parte 3 aun no esta implementada.
 
 Alcance planificado segun el enunciado:
 
@@ -178,45 +133,14 @@ Alcance planificado segun el enunciado:
 - Integrar GitLab con el flujo Kubernetes/GitOps
 - Mantener operativo el flujo de la Parte 3 con GitLab local
 
-## Notas para la Evaluacion
-
-- Las distribuciones Linux modernas usan nombres de interfaz predecibles (`enp0s8`, `enp0s9`, etc.) en lugar de `eth0/eth1`.
-- Para ver interfaces en Linux:
-
-```bash
-ip a
-ip a show <nombre_interfaz>
-```
-
-- En macOS usa:
-
-```bash
-ifconfig
-```
-
-- Adapta los comandos de red a los nombres reales de tus interfaces.
-
-## Comandos Utiles
-
-```bash
-# Ciclo de vida de VMs
-vagrant up
-vagrant halt
-vagrant destroy -f
-
-# Comprobaciones Kubernetes
-kubectl get nodes -o wide
-kubectl get pods -A
-kubectl get svc,ingress
-kubectl describe ingress apps-ingress
-```
-
 ## Licencia
 
 Este proyecto esta licenciado bajo WTFPL - [Do What the Fuck You Want to Public License](http://www.wtfpl.net/about/).
 
 <div align="center">
 
-Desarrollado como parte del curriculum de 42.
+**🚢 Desarrollado como parte del curriculum de 42 🚢**
+
+*"Scaling up is easy. Knowing when to stop is the hard part"*
 
 </div>

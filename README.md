@@ -1,8 +1,8 @@
 <div align="center">
 
-![K3s](https://img.shields.io/badge/K3s-Cluster-blue?style=for-the-badge)
-![Vagrant](https://img.shields.io/badge/Vagrant-VMs-1563FF?style=for-the-badge)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-Ingress-326CE5?style=for-the-badge)
+![K3s](https://img.shields.io/badge/K3s-Cluster-brown?style=for-the-badge)
+![Vagrant](https://img.shields.io/badge/Vagrant-VMs-blue?style=for-the-badge)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-Ingress-orange?style=for-the-badge)
 
 *Systems and DevOps lab focused on K3s, K3d, and GitOps with Argo CD*
 
@@ -17,60 +17,11 @@
 [README en Espanol](README_es.md)
 
 `Inception of Things (IoT)` is a 42 systems project focused on Kubernetes fundamentals through progressive infrastructure exercises.
-This repository is organized by mandatory parts:
 
 - `p1`: K3s with Vagrant (server + worker)
 - `p2`: K3s with Ingress routing for three web apps
 - `p3`: K3d + Argo CD + GitOps (pending)
 - `bonus`: Local GitLab integration (pending)
-
-## Status
-
-- `Part 1 (p1)`: Implemented
-- `Part 2 (p2)`: Implemented
-- `Part 3 (p3)`: Not implemented yet
-- `Bonus`: Not implemented yet
-
-## Objectives
-
-- Understand K3s architecture and cluster bootstrapping
-- Configure VMs and private networking with Vagrant
-- Deploy multiple applications in Kubernetes
-- Route traffic by `Host` header through Ingress
-- Prepare a GitOps flow with Argo CD (Part 3)
-
-## Project Structure
-
-```text
-Inception-of-Things/
-├── LICENSE
-├── README.md
-├── README_es.md
-├── doc/
-│   └── Notes.md
-├── images/
-└── src/
-    ├── p1/
-    │   └── Vagrantfile
-    ├── p2/
-    │   ├── Vagrantfile
-    │   ├── config/
-    │   │   ├── deployments.yaml
-    │   │   ├── ingress.yaml
-    │   │   └── services.yaml
-    │   ├── scripts/
-    │   │   └── server.sh
-    │   └── web/
-    │       ├── Dockerfile
-    │       ├── entrypoint.sh
-    │       └── html/
-    │           ├── index.html
-    │           └── main.css
-    ├── p3/
-    │   └── Notes.md
-    └── bonus/
-        └── Notes.md
-```
 
 ## Part 1: K3s and Vagrant
 
@@ -96,7 +47,6 @@ Current provisioning details:
 ```bash
 cd src/p1
 vagrant up
-vagrant status
 vagrant ssh vzurera-S
 kubectl get nodes -o wide
 ```
@@ -129,9 +79,11 @@ kubectl get nodes
 kubectl get deploy,svc,ingress
 ```
 
-### Hostname-based access test
+### Hostname-based access
 
-Add host entries on your host machine:
+To test hostname-based routing, you have two options:
+
+**Option 1 — Browser:** Add the following entries to your host file:
 
 ```text
 192.168.56.110 app1.com
@@ -139,23 +91,26 @@ Add host entries on your host machine:
 192.168.56.110 app3.com
 ```
 
-Then test:
+Then open `http://app1.com`, `http://app2.com` or `http://app3.com` or `http://192.168.56.110` in your browser.
+
+**Option 2 — curl:** Pass the Host header directly:
 
 ```bash
 curl -H "Host: app1.com" http://192.168.56.110
 curl -H "Host: app2.com" http://192.168.56.110
-curl -H "Host: anything-else" http://192.168.56.110
+curl -H "Host: app3.com" http://192.168.56.110
+curl http://192.168.56.110
 ```
 
 Expected behavior:
 
-- `Host: app1.com` shows app1
-- `Host: app2.com` shows app2 (served by 3 replicas)
-- any other host is routed to app3 by default
+- Host `app1.com` shows `app1`
+- Host `app2.com` shows `app2` (served by 3 replicas)
+- Any other host is routed to `app3` by default
 
 ## Part 3: K3d and Argo CD (Pending)
 
-Part 3 is not implemented yet in this repository.
+Part 3 is not implemented yet.
 
 Planned scope based on the subject:
 
@@ -178,45 +133,14 @@ Planned scope based on the subject:
 - Integrate GitLab with the Kubernetes/GitOps flow
 - Keep Part 3 workflow working with local GitLab
 
-## Evaluation Notes
-
-- Modern Linux distributions use predictable interface names (`enp0s8`, `enp0s9`, etc.) instead of `eth0/eth1`.
-- Check interfaces with:
-
-```bash
-ip a
-ip a show <interface_name>
-```
-
-- On macOS, use:
-
-```bash
-ifconfig
-```
-
-- Adapt network commands to your actual interface names.
-
-## Useful Commands
-
-```bash
-# VM lifecycle
-vagrant up
-vagrant halt
-vagrant destroy -f
-
-# Kubernetes checks
-kubectl get nodes -o wide
-kubectl get pods -A
-kubectl get svc,ingress
-kubectl describe ingress apps-ingress
-```
-
 ## License
 
 This project is licensed under the WTFPL - [Do What the Fuck You Want to Public License](http://www.wtfpl.net/about/).
 
 <div align="center">
 
-Developed as part of the 42 curriculum.
+**🚢 Developed as part of the 42 School curriculum 🚢**
+
+*"Scaling up is easy. Knowing when to stop is the hard part"*
 
 </div>
