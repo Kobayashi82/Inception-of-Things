@@ -137,6 +137,8 @@ Alcance planificado segun el enunciado:
 
 Este proyecto esta licenciado bajo WTFPL - [Do What the Fuck You Want to Public License](http://www.wtfpl.net/about/).
 
+---
+
 <div align="center">
 
 **🚢 Desarrollado como parte del curriculum de 42 🚢**

@@ -137,6 +137,8 @@ Planned scope based on the subject:
 
 This project is licensed under the WTFPL - [Do What the Fuck You Want to Public License](http://www.wtfpl.net/about/).
 
+---
+
 <div align="center">
 
 **🚢 Developed as part of the 42 School curriculum 🚢**
