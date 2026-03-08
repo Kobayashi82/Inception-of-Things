@@ -16,6 +16,7 @@ Vagrant.configure("2") do |config|
     server.vm.provision "file", source: "./config/ingress.yaml", destination: "/tmp/k3s_config/ingress.yaml"
     server.vm.provision "file", source: "./config/services.yaml", destination: "/tmp/k3s_config/services.yaml"
     server.vm.provision "file", source: "./config/deployments.yaml", destination: "/tmp/k3s_config/deployments.yaml"
-    server.vm.provision "shell", path: "script/server.sh", env: { "K3S_IP" => "192.168.56.110" }
+    server.vm.provision "shell", path: "scripts/install.sh", env: { "K3S_IP" => "192.168.56.110" }
+    server.vm.provision "shell", path: "scripts/start.sh", run: "always", env: { "K3S_IP" => "192.168.56.110" }
   end
 end
