@@ -70,7 +70,8 @@ fi
 if ! k3d cluster list | grep -q "iot-cluster"; then
 	k3d cluster create iot-cluster \
 		--k3s-arg "--disable=traefik@server:0" \
-		--k3s-arg "--disable=metrics-server@server:0"
+		--k3s-arg "--disable=metrics-server@server:0" \
+		--port "80:80@loadbalancer"
 fi
 mkdir -p /home/vagrant/.kube
 cp /root/.kube/config /home/vagrant/.kube/config
@@ -87,7 +88,7 @@ kubectl patch configmap argocd-cm -n argocd --patch '{"data": {"timeout.reconcil
 kubectl rollout restart deployment argocd-repo-server -n argocd
 kubectl apply -f /tmp/k3s_config/application.yaml
 if ! ss -tlnp | grep -q ':8080'; then
-	kubectl port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0 >/dev/null 2>&1 &
+	kubectl port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0 &> /dev/null &
 	sleep 5
 fi
 ARGOCD_PASSWORD=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d)
