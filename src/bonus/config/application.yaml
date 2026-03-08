@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+    name: web-app
+    namespace: argocd
+spec:
+    project: default
+    source:
+        repoURL: https://github.com/Kobayashi82/Inception-of-Things
+        targetRevision: HEAD
+        path: src/p3/config/repo
+    destination:
+        server: https://kubernetes.default.svc
+        namespace: dev
+    syncPolicy:
+        automated:
+            prune: true
+            selfHeal: true
