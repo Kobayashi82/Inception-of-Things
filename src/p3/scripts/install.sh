@@ -4,20 +4,19 @@ set -e
 
 # Swapfile
 if [ ! -f /swapfile ]; then
-	fallocate -l 2G /swapfile
+	fallocate -l 1G /swapfile
 	chmod 600 /swapfile
 	mkswap /swapfile
 	swapon /swapfile
 	echo '/swapfile none swap sw 0 0' >> /etc/fstab
 fi
 
-# ============
-# Installation
-# ============
+apt-get update
 
 # Curl
-apt-get update
-apt-get install -y curl
+if ! command -v curl &> /dev/null; then
+	apt-get install -y curl
+fi
 
 # Docker
 if ! command -v docker &> /dev/null; then
@@ -61,21 +60,16 @@ if ! command -v argocd &> /dev/null; then
 	rm argocd-linux-amd64
 fi
 
-
-# =============
-# Configuration
-# =============
-
 # K3d
 if ! k3d cluster list | grep -q "iot-cluster"; then
 	k3d cluster create iot-cluster \
 		--k3s-arg "--disable=traefik@server:0" \
 		--k3s-arg "--disable=metrics-server@server:0" \
 		--port "80:80@loadbalancer"
+	mkdir -p /home/vagrant/.kube
+	cp /root/.kube/config /home/vagrant/.kube/config
+	chown vagrant:vagrant /home/vagrant/.kube/config
 fi
-mkdir -p /home/vagrant/.kube
-cp /root/.kube/config /home/vagrant/.kube/config
-chown vagrant:vagrant /home/vagrant/.kube/config
 
 # Namespaces
 kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
@@ -85,14 +79,11 @@ kubectl create namespace dev --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply -n argocd --server-side --force-conflicts -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 kubectl wait --for=condition=available --timeout=300s deployment -l app.kubernetes.io/name=argocd-server -n argocd
 kubectl apply -f /tmp/k3s_config/application.yaml
+ARGOCD_PASSWORD=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d)
 if ! ss -tlnp | grep -q ':8080'; then
 	kubectl port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0 &> /dev/null &
 	sleep 5
 fi
-ARGOCD_PASSWORD=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d)
 argocd login localhost:8080 --username admin --password $ARGOCD_PASSWORD --insecure
 argocd account update-password --current-password $ARGOCD_PASSWORD --new-password "1234567890"
-
-echo ""
-echo "ArgoCD UI:  https://localhost:8888  (admin / 1234567890)"
-echo "Web-App:    http://localhost:8080"
+kill %1
