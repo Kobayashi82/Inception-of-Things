@@ -11,9 +11,9 @@ if [ ! -f /swapfile ]; then
 	echo '/swapfile none swap sw 0 0' >> /etc/fstab
 fi
 
-# =============
-# Installations
-# =============
+# ============
+# Installation
+# ============
 
 # Curl
 apt-get update
@@ -84,8 +84,6 @@ kubectl create namespace dev --dry-run=client -o yaml | kubectl apply -f -
 # ArgoCD
 kubectl apply -n argocd --server-side --force-conflicts -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 kubectl wait --for=condition=available --timeout=300s deployment -l app.kubernetes.io/name=argocd-server -n argocd
-kubectl patch configmap argocd-cm -n argocd --patch '{"data": {"timeout.reconciliation": "60s"}}'
-kubectl rollout restart deployment argocd-repo-server -n argocd
 kubectl apply -f /tmp/k3s_config/application.yaml
 if ! ss -tlnp | grep -q ':8080'; then
 	kubectl port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0 &> /dev/null &
