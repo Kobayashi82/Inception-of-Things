@@ -6,7 +6,6 @@ metadata:
     labels:
       app: web-app
 spec:
-    type: LoadBalancer
     selector:
         app: web-app
     ports:

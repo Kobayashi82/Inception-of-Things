@@ -18,6 +18,8 @@ Vagrant.configure("2") do |config|
     fi
     if ! command -v k3s &> /dev/null; then
       wget -qO- https://get.k3s.io | K3S_TOKEN=super_secret_token sh -s -
+      echo 'alias k="kubectl"' >> /etc/profile.d/k3s.sh
+      alias k="kubectl"
     fi
   SHELL
 

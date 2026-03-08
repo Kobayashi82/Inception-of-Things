@@ -25,6 +25,7 @@ if ! command -v k3s &> /dev/null; then
         --disable local-storage \
         --write-kubeconfig-mode 644
 	echo 'alias k="kubectl"' >> /etc/profile.d/k3s.sh
+	alias k="kubectl"
 fi
 
 until kubectl wait node --all --for=condition=Ready --timeout=10s 2>/dev/null; do

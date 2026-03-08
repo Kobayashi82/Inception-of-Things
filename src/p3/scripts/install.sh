@@ -53,7 +53,7 @@ if ! command -v k3d &> /dev/null; then
 	curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 fi
 
-# ArgoCD
+# ArgoCD Cli
 if ! command -v argocd &> /dev/null; then
 	curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
 	install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
@@ -76,14 +76,16 @@ kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
 kubectl create namespace dev --dry-run=client -o yaml | kubectl apply -f -
 
 # ArgoCD
-kubectl apply -n argocd --server-side --force-conflicts -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-kubectl wait --for=condition=available --timeout=300s deployment -l app.kubernetes.io/name=argocd-server -n argocd
-kubectl apply -f /tmp/k3s_config/application.yaml
-ARGOCD_PASSWORD=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d)
-if ! ss -tlnp | grep -q ':8080'; then
-	kubectl port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0 &> /dev/null &
-	sleep 5
+if ! kubectl get deployment -n argocd argocd-server &> /dev/null; then
+	kubectl apply -n argocd --server-side --force-conflicts -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+	kubectl wait --for=condition=available --timeout=300s deployment -l app.kubernetes.io/name=argocd-server -n argocd
+	kubectl apply -f /tmp/k3s_config/application.yaml
+	ARGOCD_PASSWORD=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d)
+	if ! ss -tlnp | grep -q ':8080'; then
+		kubectl port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0 &> /dev/null &
+		sleep 5
+	fi
+	argocd login localhost:8080 --username admin --password $ARGOCD_PASSWORD --insecure
+	argocd account update-password --current-password $ARGOCD_PASSWORD --new-password "1234567890"
+	kill %1
 fi
-argocd login localhost:8080 --username admin --password $ARGOCD_PASSWORD --insecure
-argocd account update-password --current-password $ARGOCD_PASSWORD --new-password "1234567890"
-kill %1

@@ -1,0 +1,63 @@
+global:
+    hosts:
+        domain: local
+        gitlab:
+            name: gitlab.local
+        https: true
+    ingress:
+        configureCertmanager: false
+        enabled: true
+        class: traefik
+        annotations:
+            traefik.ingress.kubernetes.io/router.entrypoints: websecure
+            traefik.ingress.kubernetes.io/router.tls: "true"
+        tls:
+            enabled: true
+    application:
+        allowClusterRoles: false
+
+certmanager-issuer:
+    email: admin@gitlab.local
+
+nginx-ingress:
+    enabled: false
+
+prometheus:
+    install: false
+
+gitlab-runner:
+    install: false
+
+registry:
+    enabled: false
+
+gitlab:
+    kas:
+        enabled: false
+    webservice:
+        minReplicas: 1
+        maxReplicas: 1
+        resources:
+            requests:
+                memory: 512Mi
+                cpu: 100m
+    sidekiq:
+        minReplicas: 1
+        maxReplicas: 1
+        resources:
+            requests:
+                memory: 256Mi
+                cpu: 100m
+
+postgresql:
+    primary:
+        resources:
+            requests:
+                memory: 256Mi
+
+redis:
+    master:
+        resources:
+            requests:
+                memory: 64Mi
+
