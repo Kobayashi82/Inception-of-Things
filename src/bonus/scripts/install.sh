@@ -90,6 +90,7 @@ if ! helm list -n gitlab | grep -q "gitlab"; then
 		--values /tmp/k3s_config/gitlab-values.yaml \
 		--timeout 600s \
 		--wait
+	kubectl exec -n gitlab -it $(kubectl get pod -n gitlab -l app=toolbox -o jsonpath='{.items[0].metadata.name}') -- gitlab-rails runner "user = User.find_by_username('root'); user.password = 'aA1234567890*'; user.password_confirmation = 'aA1234567890*'; user.save!"
 fi
 
 # ArgoCD
@@ -104,6 +105,6 @@ if ! kubectl get deployment -n argocd argocd-server &> /dev/null; then
 	kubectl port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0 &> /dev/null &
 	sleep 5
 	argocd login localhost:8080 --username admin --password $ARGOCD_PASSWORD --insecure
-	argocd account update-password --current-password $ARGOCD_PASSWORD --new-password "1234567890"
+	argocd account update-password --current-password $ARGOCD_PASSWORD --new-password "aA1234567890*"
 	kill %1
 fi

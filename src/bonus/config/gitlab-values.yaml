@@ -3,16 +3,15 @@ global:
         domain: local
         gitlab:
             name: gitlab.local
-        https: true
+        https: false
     ingress:
         configureCertmanager: false
         enabled: true
         class: traefik
         annotations:
-            traefik.ingress.kubernetes.io/router.entrypoints: websecure
-            traefik.ingress.kubernetes.io/router.tls: "true"
+            traefik.ingress.kubernetes.io/router.entrypoints: web
         tls:
-            enabled: true
+            enabled: false
     application:
         allowClusterRoles: false
 

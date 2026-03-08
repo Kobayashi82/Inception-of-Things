@@ -14,6 +14,6 @@ until kubectl wait node --all --for=condition=Ready --timeout=10s 2>/dev/null; d
 done
 
 echo ""
-echo "ArgoCD:   https://argocd.local:8443  (admin / 1234567890)"
-echo "GitLab:   https://gitlab.local:8443"
+echo "ArgoCD:   https://argocd.local:8443  (admin / aA1234567890*)"
+echo "GitLab:   http://gitlab.local:8080   (root / aA1234567890*)"
 echo "Web-App:  http://web-app.local:8080"

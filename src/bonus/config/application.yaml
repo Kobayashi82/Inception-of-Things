@@ -6,9 +6,9 @@ metadata:
 spec:
     project: default
     source:
-        repoURL: https://github.com/Kobayashi82/Inception-of-Things
+        repoURL: http://gitlab-webservice-default.gitlab.svc.cluster.local:8181/root/inception-of-things
         targetRevision: HEAD
-        path: src/p3/config/repo
+        path: /
     destination:
         server: https://kubernetes.default.svc
         namespace: dev
