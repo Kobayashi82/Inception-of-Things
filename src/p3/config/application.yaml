@@ -8,7 +8,7 @@ spec:
     source:
         repoURL: https://github.com/Kobayashi82/Inception-of-Things
         targetRevision: HEAD
-        path: p3/config/repo
+        path: src/p3/config/repo
     destination:
         server: https://kubernetes.default.svc
         namespace: dev
