@@ -1,0 +1,20 @@
+FROM nginx:alpine
+
+COPY html/index_p2.html /usr/share/nginx/html/index.html.tmpl
+COPY html/main.css /usr/share/nginx/html/
+COPY html/logo.svg /usr/share/nginx/html/
+COPY scripts/entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 80
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+# docker build -f Dockerfile.p2 -t kobayashi82/iot-web-app:1.0.0 .
+# docker login
+# docker push kobayashi82/iot-web-app:1.0.0
+# docker run -d -p 8080:80 --name web-app -e APP_NAME="test" kobayashi82/iot-web-app:1.0.0
+# docker stop web-app   
+# docker rm web-app
+# docker rmi kobayashi82/iot-web-app:1.0.0

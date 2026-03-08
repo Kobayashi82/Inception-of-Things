@@ -1,0 +1,15 @@
+FROM nginx:alpine
+
+COPY html/index_p3.html /usr/share/nginx/html/index.html
+COPY html/main.css /usr/share/nginx/html/
+COPY html/logo.svg /usr/share/nginx/html/
+
+EXPOSE 80
+
+# docker build -f Dockerfile.p3 -t kobayashi82/iot-web-app:1.0.1 .
+# docker login
+# docker push kobayashi82/iot-web-app:1.0.1
+# docker run -d -p 8080:80 --name web-app kobayashi82/iot-web-app:1.0.1
+# docker stop web-app   
+# docker rm web-app
+# docker rmi kobayashi82/iot-web-app:1.0.1

@@ -125,7 +125,7 @@
 
 | Comando                                                                                    | Descripción              |
 |--------------------------------------------------------------------------------------------|--------------------------|
-| `docker build -t kobayashi82/iot-web-app:1.0.0 .`	                                         | Build image              |
+| `docker build -f Dockerfile -t kobayashi82/iot-web-app:1.0.0 .`                            | Build image              |
 | `docker login`										                                     | Login to Docker          |
 | `docker push kobayashi82/iot-web-app:1.0.0`			                                     | Push image to Docker Hub |
 | `docker run -d -p 8080:80 --name web-app -e APP_NAME="test" kobayashi82/iot-web-app:1.0.0` | Start container          |

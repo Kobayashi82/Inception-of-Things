@@ -8,6 +8,9 @@
 !doc/**
 doc/Inception-of-Things\ 4.0.pdf
 
+!app
+!app/**
+
 !src
 !src/**
 src/p1/token
