@@ -20,8 +20,8 @@
 
 - `p1`: K3s con Vagrant (server + worker)
 - `p2`: K3s con enrutamiento Ingress para tres aplicaciones web
-- `p3`: K3d + Argo CD + GitOps (pendiente)
-- `bonus`: Integracion de GitLab local (pendiente)
+- `p3`: K3d + Argo CD + GitOps
+- `bonus`: Integracion de GitLab local
 
 ## Parte 1: K3s y Vagrant
 
@@ -108,20 +108,47 @@ Comportamiento esperado:
 - El host `app2.com` muestra `app2` (servido por 3 réplicas)
 - Cualquier otro host se enruta a `app3` por defecto
 
-## Parte 3: K3d y Argo CD (Pendiente)
+## Parte 3: K3d y Argo CD
 
-La Parte 3 aun no esta implementada.
+`src/p3` levanta una VM (`vzurera-S`) y configura un flujo GitOps local con K3d + Argo CD.
 
-Alcance planificado segun el enunciado:
+### Alcance implementado
 
-- Instalar prerequisitos con scripts (Docker, k3d, kubectl, argocd CLI, etc.)
-- Crear namespaces:
+- Instala prerequisitos en la VM:
+  - Docker
+  - kubectl
+  - k3d
+  - argocd CLI
+- Crea el cluster K3d `iot-cluster`
+- Crea los namespaces:
   - `argocd`
   - `dev`
-- Desplegar Argo CD en el cluster
-- Conectar Argo CD con un repositorio publico de GitHub
-- Desplegar automaticamente una app en el namespace `dev`
-- Validar cambio de version de `v1` a `v2` mediante cambios en Git
+- Despliega Argo CD dentro del cluster (namespace `argocd`)
+- Aplica la `Application` de Argo CD desde `src/p3/config/application.yaml`
+- Sincroniza manifiestos de este repositorio (`src/p3/config/repo`) en `dev`
+- Expone:
+  - UI de Argo CD en `https://localhost:8888`
+  - Aplicacion web en `http://localhost:8080`
+
+Imagen actual de la aplicacion en los manifiestos GitOps: `kobayashi82/iot-web-app:1.0.1`.
+
+### Ejecutar Parte 3
+
+```bash
+cd src/p3
+vagrant up
+vagrant ssh vzurera-S
+kubectl get nodes
+kubectl get pods -n argocd
+kubectl get all -n dev
+```
+
+### Acceso y credenciales
+
+- UI de Argo CD: `https://localhost:8888`
+- Usuario: `admin`
+- Password: `1234567890`
+- Aplicacion web: `http://localhost:8080`
 
 ## Bonus: GitLab (Pendiente)
 

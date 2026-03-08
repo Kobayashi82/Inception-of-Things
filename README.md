@@ -20,8 +20,8 @@
 
 - `p1`: K3s with Vagrant (server + worker)
 - `p2`: K3s with Ingress routing for three web apps
-- `p3`: K3d + Argo CD + GitOps (pending)
-- `bonus`: Local GitLab integration (pending)
+- `p3`: K3d + Argo CD + GitOps
+- `bonus`: Local GitLab integration
 
 ## Part 1: K3s and Vagrant
 
@@ -108,20 +108,47 @@ Expected behavior:
 - Host `app2.com` shows `app2` (served by 3 replicas)
 - Any other host is routed to `app3` by default
 
-## Part 3: K3d and Argo CD (Pending)
+## Part 3: K3d and Argo CD
 
-Part 3 is not implemented yet.
+`src/p3` provisions one VM (`vzurera-S`) and configures a local GitOps flow with K3d + Argo CD.
 
-Planned scope based on the subject:
+### Implemented scope
 
-- Install prerequisites with scripts (Docker, k3d, kubectl, argocd CLI, etc.)
-- Create namespaces:
+- Installs prerequisites in the VM:
+  - Docker
+  - kubectl
+  - k3d
+  - argocd CLI
+- Creates K3d cluster `iot-cluster`
+- Creates namespaces:
   - `argocd`
   - `dev`
-- Deploy Argo CD in-cluster
-- Connect Argo CD to a public GitHub repository
-- Auto-deploy an app in `dev` namespace
-- Validate version switch from `v1` to `v2` through Git changes
+- Deploys Argo CD in-cluster (`argocd` namespace)
+- Applies Argo CD `Application` from `src/p3/config/application.yaml`
+- Syncs manifests from this repository (`src/p3/config/repo`) into `dev`
+- Exposes:
+  - Argo CD UI on `https://localhost:8888`
+  - Web app on `http://localhost:8080`
+
+Current application image in GitOps manifests: `kobayashi82/iot-web-app:1.0.1`.
+
+### Run Part 3
+
+```bash
+cd src/p3
+vagrant up
+vagrant ssh vzurera-S
+kubectl get nodes
+kubectl get pods -n argocd
+kubectl get all -n dev
+```
+
+### Access and credentials
+
+- Argo CD UI: `https://localhost:8888`
+- User: `admin`
+- Password: `1234567890`
+- Web app: `http://localhost:8080`
 
 ## Bonus: GitLab (Pending)
 
