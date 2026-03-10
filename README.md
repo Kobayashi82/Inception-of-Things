@@ -118,17 +118,18 @@ Expected behavior:
   - Docker
   - kubectl
   - k3d
+  - helm
   - argocd CLI
 - Creates K3d cluster `iot-cluster`
 - Creates namespaces:
   - `argocd`
   - `dev`
-- Deploys Argo CD in-cluster (`argocd` namespace)
+- Deploys Argo CD in-cluster with Helm
 - Applies Argo CD `Application` from `src/p3/config/application.yaml`
 - Syncs manifests from this repository (`src/p3/config/repo`) into `dev`
 - Exposes:
-  - Argo CD UI on `https://localhost:8888`
-  - Web app on `http://localhost:8080`
+  - Argo CD on `http://argocd.local:8080`
+  - Web app on `http://web-app.local:8080`
 
 Current application image in GitOps manifests: `kobayashi82/iot-web-app:1.0.1`.
 
@@ -145,10 +146,19 @@ kubectl get all -n dev
 
 ### Access and credentials
 
-- Argo CD UI: `https://localhost:8888`
+- Argo CD UI: `http://argocd.local:8080`
 - User: `admin`
-- Password: `1234567890`
-- Web app: `http://localhost:8080`
+- Password: `aA123456789*`
+- Web app: `http://web-app.local:8080`
+
+### Hostname-based access
+
+This setup exposes Argo CD and the web app through the VM ingress on host port `8080`. Add these entries to your host file:
+
+```text
+127.0.0.1 argocd.local
+127.0.0.1 web-app.local
+```
 
 ## Bonus: Local GitLab + Argo CD
 

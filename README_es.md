@@ -118,17 +118,18 @@ Comportamiento esperado:
   - Docker
   - kubectl
   - k3d
+  - helm
   - argocd CLI
 - Crea el cluster K3d `iot-cluster`
 - Crea los namespaces:
   - `argocd`
   - `dev`
-- Despliega Argo CD dentro del cluster (namespace `argocd`)
+- Despliega Argo CD dentro del cluster con Helm
 - Aplica la `Application` de Argo CD desde `src/p3/config/application.yaml`
 - Sincroniza manifiestos de este repositorio (`src/p3/config/repo`) en `dev`
 - Expone:
-  - UI de Argo CD en `https://localhost:8888`
-  - Aplicacion web en `http://localhost:8080`
+  - Argo CD en `http://argocd.local:8080`
+  - Aplicacion web en `http://web-app.local:8080`
 
 Imagen actual de la aplicacion en los manifiestos GitOps: `kobayashi82/iot-web-app:1.0.1`.
 
@@ -145,10 +146,19 @@ kubectl get all -n dev
 
 ### Acceso y credenciales
 
-- UI de Argo CD: `https://localhost:8888`
+- UI de Argo CD: `http://argocd.local:8080`
 - Usuario: `admin`
-- Password: `1234567890`
-- Aplicacion web: `http://localhost:8080`
+- Password: `aA123456789*`
+- Aplicacion web: `http://web-app.local:8080`
+
+### Acceso por hostname
+
+Esta parte expone Argo CD y la aplicacion web a traves del ingress de la VM en el puerto `8080` de tu host. Añade estas entradas a tu archivo de hosts:
+
+```text
+127.0.0.1 argocd.local
+127.0.0.1 web-app.local
+```
 
 ## Bonus: GitLab local + Argo CD
 

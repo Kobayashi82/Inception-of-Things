@@ -1,0 +1,36 @@
+server:
+    ingress:
+        enabled: true
+        ingressClassName: traefik
+        annotations:
+            traefik.ingress.kubernetes.io/router.entrypoints: web
+        hostname: argocd.local
+        servicePort: http
+    resources:
+        requests:
+            memory: 64Mi
+            cpu: 50m
+        limits:
+            memory: 128Mi
+
+applicationSet:
+    resources:
+        requests:
+            memory: 32Mi
+            cpu: 10m
+
+redis:
+    resources:
+        requests:
+            memory: 32Mi
+            cpu: 10m
+
+configs:
+    params:
+        server.insecure: true
+    cm:
+        timeout.reconciliation: 60s
+        url: http://argocd.local
+    secret:
+        argocdServerAdminPassword: ""
+        argocdServerAdminPasswordMtime: ""

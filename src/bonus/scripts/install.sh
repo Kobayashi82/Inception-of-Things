@@ -142,6 +142,7 @@ install_k3d() {
 	kubectl create namespace dev    --dry-run=client -o yaml | kubectl apply -f -
 }
 
+# UTILS
 install_utils() {
 	apt-get update
 
