@@ -74,7 +74,7 @@ All apps use image: `kobayashi82/iot-web-app:1.0.0`.
 ```bash
 cd src/p2
 vagrant up
-vagrant ssh vzurera-S
+vagrant ssh
 kubectl get nodes
 kubectl get deploy,svc,ingress
 ```
@@ -137,7 +137,7 @@ Current application image in GitOps manifests: `kobayashi82/iot-web-app:1.0.1`.
 ```bash
 cd src/p3
 vagrant up
-vagrant ssh vzurera-S
+vagrant ssh
 kubectl get nodes
 kubectl get pods -n argocd
 kubectl get all -n dev
@@ -150,15 +150,75 @@ kubectl get all -n dev
 - Password: `1234567890`
 - Web app: `http://localhost:8080`
 
-## Bonus: GitLab (Pending)
+## Bonus: Local GitLab + Argo CD
 
-Bonus is not implemented yet.
+`src/bonus` provisions one VM (`vzurera-S`) with a local GitOps flow fully backed by GitLab inside the K3d cluster.
 
-Planned scope based on the subject:
+### Implemented scope
 
-- Deploy local GitLab in `gitlab` namespace
-- Integrate GitLab with the Kubernetes/GitOps flow
-- Keep Part 3 workflow working with local GitLab
+- Installs prerequisites in the VM:
+  - Docker
+  - kubectl
+  - k3d
+  - helm
+  - argocd CLI
+  - jq
+- Creates K3d cluster `iot-cluster`
+- Creates namespaces:
+  - `gitlab`
+  - `argocd`
+  - `dev`
+- Deploys local GitLab in-cluster with Helm
+- Deploys Argo CD in-cluster with Helm
+- Creates GitLab user `vzurera`
+- Creates GitLab repository `vzurera/inception-of-things`
+- Seeds that repository with the Kubernetes manifests from `src/bonus/config/repo`
+- Applies the Argo CD `Application` from `src/bonus/config/application.yaml`
+- Syncs the `dev` namespace from the GitLab repository, not from this working copy
+
+Current application image in the seeded GitOps repository: `kobayashi82/iot-web-app:1.0.1`.
+
+### Run Bonus
+
+```bash
+cd src/bonus
+vagrant up
+vagrant ssh
+kubectl get nodes
+kubectl get pods -n gitlab
+kubectl get pods -n argocd
+kubectl get all -n dev
+```
+
+### Hostname-based access
+
+The bonus setup exposes everything through the VM ingress on host port `8080`. Add these entries to your host file:
+
+```text
+127.0.0.1 gitlab.local
+127.0.0.1 argocd.local
+127.0.0.1 web-app.local
+```
+
+Then access:
+
+- GitLab: `http://gitlab.local:8080`
+- Argo CD: `http://argocd.local:8080`
+- Web app: `http://web-app.local:8080`
+
+### Credentials
+
+- GitLab root user: `root`
+- GitLab regular user: `vzurera`
+- Argo CD user: `admin`
+- Shared password: `aA123456789*`
+
+### GitOps flow in Bonus
+
+- GitLab is the source of truth for the application manifests
+- Argo CD reads the repository through the in-cluster GitLab service URL
+- The initial repository content is created automatically during provisioning
+- After editing and pushing manifests to the GitLab repository, Argo CD reconciles the `dev` namespace automatically
 
 ## License
 

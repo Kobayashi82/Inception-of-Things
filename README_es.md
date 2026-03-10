@@ -74,7 +74,7 @@ Todas las apps usan la imagen: `kobayashi82/iot-web-app:1.0.0`.
 ```bash
 cd src/p2
 vagrant up
-vagrant ssh vzurera-S
+vagrant ssh
 kubectl get nodes
 kubectl get deploy,svc,ingress
 ```
@@ -137,7 +137,7 @@ Imagen actual de la aplicacion en los manifiestos GitOps: `kobayashi82/iot-web-a
 ```bash
 cd src/p3
 vagrant up
-vagrant ssh vzurera-S
+vagrant ssh
 kubectl get nodes
 kubectl get pods -n argocd
 kubectl get all -n dev
@@ -150,15 +150,75 @@ kubectl get all -n dev
 - Password: `1234567890`
 - Aplicacion web: `http://localhost:8080`
 
-## Bonus: GitLab (Pendiente)
+## Bonus: GitLab local + Argo CD
 
-El bonus aun no esta implementado.
+`src/bonus` levanta una VM (`vzurera-S`) con un flujo GitOps local completamente respaldado por GitLab dentro del cluster K3d.
 
-Alcance planificado segun el enunciado:
+### Alcance implementado
 
-- Desplegar GitLab local en namespace `gitlab`
-- Integrar GitLab con el flujo Kubernetes/GitOps
-- Mantener operativo el flujo de la Parte 3 con GitLab local
+- Instala prerequisitos en la VM:
+  - Docker
+  - kubectl
+  - k3d
+  - helm
+  - argocd CLI
+  - jq
+- Crea el cluster K3d `iot-cluster`
+- Crea los namespaces:
+  - `gitlab`
+  - `argocd`
+  - `dev`
+- Despliega GitLab local dentro del cluster con Helm
+- Despliega Argo CD dentro del cluster con Helm
+- Crea el usuario `vzurera` en GitLab
+- Crea el repositorio `vzurera/inception-of-things` en GitLab
+- Inicializa ese repositorio con los manifiestos de Kubernetes de `src/bonus/config/repo`
+- Aplica la `Application` de Argo CD desde `src/bonus/config/application.yaml`
+- Sincroniza el namespace `dev` desde el repositorio de GitLab, no desde esta copia de trabajo
+
+Imagen actual de la aplicacion en el repositorio GitOps inicializado: `kobayashi82/iot-web-app:1.0.1`.
+
+### Ejecutar Bonus
+
+```bash
+cd src/bonus
+vagrant up
+vagrant ssh
+kubectl get nodes
+kubectl get pods -n gitlab
+kubectl get pods -n argocd
+kubectl get all -n dev
+```
+
+### Acceso por hostname
+
+El bonus expone todo a traves del ingress de la VM en el puerto `8080` de tu host. Añade estas entradas a tu archivo de hosts:
+
+```text
+127.0.0.1 gitlab.local
+127.0.0.1 argocd.local
+127.0.0.1 web-app.local
+```
+
+Luego accede a:
+
+- GitLab: `http://gitlab.local:8080`
+- Argo CD: `http://argocd.local:8080`
+- Aplicacion web: `http://web-app.local:8080`
+
+### Credenciales
+
+- Usuario root de GitLab: `root`
+- Usuario normal de GitLab: `vzurera`
+- Usuario de Argo CD: `admin`
+- Password compartido: `aA123456789*`
+
+### Flujo GitOps del Bonus
+
+- GitLab es la fuente de verdad de los manifiestos de la aplicacion
+- Argo CD lee el repositorio usando la URL interna del servicio de GitLab en el cluster
+- El contenido inicial del repositorio se crea automaticamente durante el provisioning
+- Tras editar y hacer push de los manifiestos al repositorio de GitLab, Argo CD reconcilia automaticamente el namespace `dev`
 
 ## Licencia
 
