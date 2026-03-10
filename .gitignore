@@ -1,9 +1,4 @@
 *
-!.vscode
-!.vscode/**
-.vscode/launch.json
-.vscode/settings.json
-
 !doc
 !doc/**
 doc/Inception-of-Things\ 4.0.pdf

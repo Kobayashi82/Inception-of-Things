@@ -157,11 +157,9 @@ kubectl get pods -n argocd
 kubectl get all -n dev
 ```
 
-### Acceso y credenciales
+### Acceso
 
 - UI de Argo CD: `http://argocd.local:8080`
-- Usuario: `admin`
-- Password: `aA123456789*`
 - Aplicacion web: `http://web-app.local:8080`
 
 ### Acceso por hostname
@@ -228,13 +226,6 @@ Luego accede a:
 - GitLab: `http://gitlab.local:8080`
 - Argo CD: `http://argocd.local:8080`
 - Aplicacion web: `http://web-app.local:8080`
-
-### Credenciales
-
-- Usuario root de GitLab: `root`
-- Usuario normal de GitLab: `vzurera`
-- Usuario de Argo CD: `admin`
-- Password compartido: `aA123456789*`
 
 ### Flujo GitOps del Bonus
 

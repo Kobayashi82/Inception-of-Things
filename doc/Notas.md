@@ -36,15 +36,6 @@
 | `vagrant global-status --prune`   | Limpia entradas obsoletas                   |
 |
 
-## Box
-
-| Comando                           | Descripción                                 |
-|-----------------------------------|---------------------------------------------|
-| `vagrant box list`                | Lista las boxes descargadas                 |
-| `vagrant box remove [name]`       | Elimina una box                             |
-| `vagrant box update`              | Actualiza la box                            |
-|
-
 ## Snapshots
 
 | Comando                                           | Descripción                 |
@@ -114,6 +105,19 @@
 | `journalctl -fu k3s-agent`        | Logs en tiempo real del agent               |
 |
 
+## K3d
+
+| Comando                           | Descripción                                 |
+|-----------------------------------|---------------------------------------------|
+| `k3d version`                     | Versión de K3d                              |
+| `k3d cluster list`                | Lista de clusters                           |
+| `k3d cluster create <name>`       | Crear un cluster                            |
+| `k3d cluster delete <name>`       | Eliminar un cluster                         |
+| `k3d cluster start <name>`        | Arrancar un cluster                         |
+| `k3d cluster stop <name>`         | Detener un cluster                          |
+| `k3d node list`                   | Lista de nodos                              |
+|
+
 # Curl
 
 | Comando                                   | Descripción                         |
@@ -134,6 +138,16 @@
 | `docker rmi kobayashi82/iot-web-app:1.0.0`			                                     | Remove image             |
 |
 
-google-chrome --host-resolver-rules="MAP app1.com 127.0.0.1, MAP app2.com 127.0.0.1, MAP app3.com 127.0.0.1"
-chromium --host-resolver-rules="MAP app1.com 127.0.0.1, MAP app2.com 127.0.0.1, MAP app3.com 127.0.0.1"
-& "C:\Program Files\Google\Chrome\Application\chrome.exe" --host-resolver-rules='MAP app1.com 127.0.0.1, MAP app2.com 127.0.0.1, MAP app3.com 127.0.0.1'
+# Conectar por host
+
+## Linux
+
+- google-chrome --host-resolver-rules="MAP app1.com 127.0.0.1, MAP app2.com 127.0.0.1, MAP app3.com 127.0.0.1"
+- google-chrome --host-resolver-rules='MAP argocd.local 127.0.0.1, MAP web-app.local 127.0.0.1'
+- google-chrome --host-resolver-rules='MAP gitlab.local 127.0.0.1, MAP argocd.local 127.0.0.1, MAP web-app.local 127.0.0.1'
+
+## Windows
+
+- & "C:\Program Files\Google\Chrome\Application\chrome.exe" --host-resolver-rules="MAP app1.com 127.0.0.1, MAP app2.com 127.0.0.1, MAP app3.com 127.0.0.1"
+- & "C:\Program Files\Google\Chrome\Application\chrome.exe" --host-resolver-rules='MAP argocd.local 127.0.0.1, MAP web-app.local 127.0.0.1'
+- & "C:\Program Files\Google\Chrome\Application\chrome.exe" --host-resolver-rules='MAP gitlab.local 127.0.0.1, MAP argocd.local 127.0.0.1, MAP web-app.local 127.0.0.1'
