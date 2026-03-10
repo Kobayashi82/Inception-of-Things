@@ -1,8 +1,14 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
-# Start Docker if not running
+GITLAB_USER=${GITLAB_USER:-"vzurera"}
+GITLAB_PASS=${GITLAB_PASS:-"aA123456789*"}
+GITLAB_USERPASS=${GITLAB_USERPASS:-$GITLAB_PASS}
+GITLAB_REPO=${GITLAB_REPO:-"inception-of-things"}
+ARGOCD_PASS=${ARGOCD_PASS:-"aA123456789*"}
+
+# Start Docker
 systemctl start docker
 
 # Start k3d cluster
@@ -14,6 +20,6 @@ until kubectl wait node --all --for=condition=Ready --timeout=10s 2>/dev/null; d
 done
 
 echo ""
-echo "ArgoCD:   https://argocd.local:8443  (admin / aA1234567890*)"
-echo "GitLab:   http://gitlab.local:8080   (root / aA1234567890*)"
+echo "ArgoCD:   http://argocd.local:8080   (admin => $ARGOCD_PASS)"
+echo "GitLab:   http://gitlab.local:8080   ($GITLAB_USER => $GITLAB_USERPASS)"
 echo "Web-App:  http://web-app.local:8080"

@@ -1,9 +1,13 @@
+installCertmanager: false
+
 global:
+    edition: ce
     hosts:
         domain: local
         gitlab:
             name: gitlab.local
         https: false
+        ssh: false
     ingress:
         configureCertmanager: false
         enabled: true
@@ -12,8 +16,13 @@ global:
             traefik.ingress.kubernetes.io/router.entrypoints: web
         tls:
             enabled: false
+    kas:
+        enabled: false
     application:
         allowClusterRoles: false
+    initialRootPassword:
+        secret: gitlab-root-password
+        key: initial_root_password
 
 certmanager-issuer:
     email: admin@gitlab.local
@@ -31,30 +40,39 @@ registry:
     enabled: false
 
 gitlab:
-    kas:
+    gitlab-shell:
         enabled: false
     webservice:
-        minReplicas: 1
-        maxReplicas: 1
+        replicaCount: 1
+        workerProcesses: 1
         resources:
             requests:
                 memory: 512Mi
                 cpu: 100m
     sidekiq:
-        minReplicas: 1
-        maxReplicas: 1
+        concurrency: 5
+        replicas: 1
         resources:
             requests:
                 memory: 256Mi
                 cpu: 100m
+    toolbox:
+        resources:
+            requests:
+                memory: 256Mi
+                cpu: 50m
 
 postgresql:
+    metrics:
+        enabled: false
     primary:
         resources:
             requests:
                 memory: 256Mi
 
 redis:
+    metrics:
+        enabled: false
     master:
         resources:
             requests:
