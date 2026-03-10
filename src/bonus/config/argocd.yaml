@@ -1,20 +1,48 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-    name: argocd
-    namespace: argocd
-    annotations:
-        traefik.ingress.kubernetes.io/router.entrypoints: web
-spec:
-    ingressClassName: traefik
-    rules:
-        - host: argocd.local
-          http:
-              paths:
-                  - path: /
-                    pathType: Prefix
-                    backend:
-                        service:
-                            name: argocd-server
-                            port:
-                                number: 80
+server:
+    ingress:
+        enabled: true
+        ingressClassName: traefik
+        annotations:
+            traefik.ingress.kubernetes.io/router.entrypoints: web
+        hostname: argocd.local
+        servicePort: http
+    resources:
+        requests:
+            memory: 64Mi
+            cpu: 50m
+        limits:
+            memory: 128Mi
+
+repoServer:
+    hostAliases:
+        - ip: ""
+          hostnames:
+              - gitlab.local
+    resources:
+        requests:
+            memory: 64Mi
+            cpu: 50m
+        limits:
+            memory: 128Mi
+
+applicationSet:
+    resources:
+        requests:
+            memory: 32Mi
+            cpu: 10m
+
+redis:
+    resources:
+        requests:
+            memory: 32Mi
+            cpu: 10m
+
+configs:
+    params:
+        server.insecure: true
+    cm:
+        timeout.reconciliation: 60s
+        url: http://argocd.local
+    secret:
+        argocdServerAdminPassword: ""
+        argocdServerAdminPasswordMtime: ""

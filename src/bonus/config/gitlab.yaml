@@ -40,15 +40,26 @@ registry:
     enabled: false
 
 gitlab:
+    gitaly:
+        resources:
+            requests:
+                memory: 256Mi
+                cpu: 50m
+            limits:
+                memory: 512Mi
     gitlab-shell:
         enabled: false
     webservice:
         replicaCount: 1
         workerProcesses: 1
+        minReplicas: 1
+        maxReplicas: 1
         resources:
             requests:
-                memory: 512Mi
+                memory: 900Mi
                 cpu: 100m
+            limits:
+                memory: 1.5Gi
     sidekiq:
         concurrency: 5
         replicas: 1

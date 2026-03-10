@@ -6,7 +6,7 @@ metadata:
 spec:
     project: default
     source:
-        repoURL: http://gitlab-webservice-default.gitlab.svc.cluster.local:8181/__GITLAB_USER__/__GITLAB_REPO__.git
+        repoURL: http://gitlab-webservice-default.gitlab.svc.cluster.local:8181/vzurera/inception-of-things.git
         targetRevision: HEAD
         path: .
     destination:
