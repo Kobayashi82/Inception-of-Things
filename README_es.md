@@ -83,7 +83,7 @@ kubectl get deploy,svc,ingress
 
 Para probar el enrutamiento por hostname, tienes dos opciones:
 
-**Opción 1 — Navegador:** Añade las siguientes entradas a tu archivo de hosts:
+**Opción 1 — Navegador por la IP privada de la VM:** Añade las siguientes entradas a tu archivo de hosts:
 
 ```text
 192.168.56.110 app1.com
@@ -93,13 +93,26 @@ Para probar el enrutamiento por hostname, tienes dos opciones:
 
 Luego abre `http://app1.com`, `http://app2.com`, `http://app3.com` o `http://192.168.56.110` en tu navegador.
 
-**Opción 2 — curl:** Pasa el header Host directamente:
+**Opción 2 — Navegador por el puerto reenviado 8080:** Añade las siguientes entradas a tu archivo de hosts:
+
+```text
+127.0.0.1 app1.com
+127.0.0.1 app2.com
+127.0.0.1 app3.com
+```
+
+Luego abre `http://app1.com:8080`, `http://app2.com:8080` o `http://app3.com:8080`.
+
+**Opción 3 — curl:** Pasa el header Host directamente:
 
 ```bash
 curl -H "Host: app1.com" http://192.168.56.110
 curl -H "Host: app2.com" http://192.168.56.110
 curl -H "Host: app3.com" http://192.168.56.110
 curl http://192.168.56.110
+curl -H "Host: app1.com" http://127.0.0.1:8080
+curl -H "Host: app2.com" http://127.0.0.1:8080
+curl -H "Host: app3.com" http://127.0.0.1:8080
 ```
 
 Comportamiento esperado:

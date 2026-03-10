@@ -83,7 +83,7 @@ kubectl get deploy,svc,ingress
 
 To test hostname-based routing, you have two options:
 
-**Option 1 — Browser:** Add the following entries to your host file:
+**Option 1 — Browser over the VM private IP:** Add the following entries to your host file:
 
 ```text
 192.168.56.110 app1.com
@@ -93,13 +93,26 @@ To test hostname-based routing, you have two options:
 
 Then open `http://app1.com`, `http://app2.com` or `http://app3.com` or `http://192.168.56.110` in your browser.
 
-**Option 2 — curl:** Pass the Host header directly:
+**Option 2 — Browser over forwarded port 8080:** Add the following entries to your host file:
+
+```text
+127.0.0.1 app1.com
+127.0.0.1 app2.com
+127.0.0.1 app3.com
+```
+
+Then open `http://app1.com:8080`, `http://app2.com:8080` or `http://app3.com:8080`.
+
+**Option 3 — curl:** Pass the Host header directly:
 
 ```bash
 curl -H "Host: app1.com" http://192.168.56.110
 curl -H "Host: app2.com" http://192.168.56.110
 curl -H "Host: app3.com" http://192.168.56.110
 curl http://192.168.56.110
+curl -H "Host: app1.com" http://127.0.0.1:8080
+curl -H "Host: app2.com" http://127.0.0.1:8080
+curl -H "Host: app3.com" http://127.0.0.1:8080
 ```
 
 Expected behavior:

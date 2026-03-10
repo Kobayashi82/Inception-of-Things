@@ -133,3 +133,7 @@
 | `docker rm web-app`									                                     | Remove container         |
 | `docker rmi kobayashi82/iot-web-app:1.0.0`			                                     | Remove image             |
 |
+
+google-chrome --host-resolver-rules="MAP app1.com 127.0.0.1, MAP app2.com 127.0.0.1, MAP app3.com 127.0.0.1"
+chromium --host-resolver-rules="MAP app1.com 127.0.0.1, MAP app2.com 127.0.0.1, MAP app3.com 127.0.0.1"
+& "C:\Program Files\Google\Chrome\Application\chrome.exe" --host-resolver-rules='MAP app1.com 127.0.0.1, MAP app2.com 127.0.0.1, MAP app3.com 127.0.0.1'

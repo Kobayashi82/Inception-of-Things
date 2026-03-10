@@ -13,18 +13,6 @@ server:
         limits:
             memory: 128Mi
 
-repoServer:
-    hostAliases:
-        - ip: ""
-          hostnames:
-              - gitlab.local
-    resources:
-        requests:
-            memory: 64Mi
-            cpu: 50m
-        limits:
-            memory: 128Mi
-
 applicationSet:
     resources:
         requests:
@@ -46,3 +34,15 @@ configs:
     secret:
         argocdServerAdminPassword: ""
         argocdServerAdminPasswordMtime: ""
+
+repoServer:
+    hostAliases:
+        - ip: ""
+          hostnames:
+              - gitlab.local
+    resources:
+        requests:
+            memory: 64Mi
+            cpu: 50m
+        limits:
+            memory: 128Mi

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
-# Swapfile
+# SWAPFILE
 if [ ! -f /swapfile ]; then
 	fallocate -l 1G /swapfile
 	chmod 600 /swapfile
@@ -13,23 +13,27 @@ fi
 
 apt-get update
 
-# Curl
+# Install curl
 if ! command -v curl &> /dev/null; then
 	apt-get install -y curl
 fi
 
+# Install k3s
 if ! command -v k3s &> /dev/null; then
 	curl -sfL https://get.k3s.io | sh -s - \
         --node-ip ${K3S_IP} \
         --disable metrics-server \
         --disable local-storage \
         --write-kubeconfig-mode 644
-	echo 'alias k="kubectl"' >> /etc/profile.d/k3s.sh
-	alias k="kubectl"
+
+	until kubectl get nodes --no-headers 2>/dev/null | grep -q .; do
+		sleep 2
+	done
+
+	# Pre-pull the application
+	k3s ctr images pull "docker.io/kobayashi82/iot-web-app:1.0.0" &> /dev/null
+
+	# Apply manifest
+	kubectl wait --for=condition=Ready node --all --timeout=120s
+	kubectl apply -f /tmp/config/
 fi
-
-until kubectl wait node --all --for=condition=Ready --timeout=10s 2>/dev/null; do
-    sleep 2
-done
-
-kubectl apply -f /tmp/k3s_config/

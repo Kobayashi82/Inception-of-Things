@@ -5,17 +5,16 @@ Vagrant.configure("2") do |config|
     server.vm.synced_folder ".", "/vagrant", disabled: true
     server.vm.hostname = "vzurera-S"
     server.vm.network "private_network", ip: "192.168.56.110"
+    server.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "0.0.0.0"
     server.vm.provider "virtualbox" do |vb|
-      vb.memory = 1024
-      vb.cpus = 1
+      vb.memory = 4096
+      vb.cpus = 2
       vb.gui = false
       vb.customize ["modifyvm", :id, "--name", "vzurera-S"]
       vb.customize ["modifyvm", :id, "--nested-hw-virt", "off"]
     end
-    server.vm.provision "shell", inline: "mkdir -p /tmp/k3s_config && chown vagrant:vagrant /tmp/k3s_config"
-    server.vm.provision "file", source: "./config/ingress.yaml", destination: "/tmp/k3s_config/ingress.yaml"
-    server.vm.provision "file", source: "./config/services.yaml", destination: "/tmp/k3s_config/services.yaml"
-    server.vm.provision "file", source: "./config/deployments.yaml", destination: "/tmp/k3s_config/deployments.yaml"
+    server.vm.provision "file", source: "config", destination: "/tmp/config"
+    server.vm.provision "shell", inline: "chown -R vagrant:vagrant /tmp/config"
     server.vm.provision "shell", path: "scripts/install.sh", env: { "K3S_IP" => "192.168.56.110" }
     server.vm.provision "shell", path: "scripts/start.sh", run: "always", env: { "K3S_IP" => "192.168.56.110" }
   end

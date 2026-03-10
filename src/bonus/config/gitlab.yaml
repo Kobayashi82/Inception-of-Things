@@ -1,5 +1,3 @@
-installCertmanager: false
-
 global:
     edition: ce
     hosts:
@@ -24,8 +22,7 @@ global:
         secret: gitlab-root-password
         key: initial_root_password
 
-certmanager-issuer:
-    email: admin@gitlab.local
+installCertmanager: false
 
 nginx-ingress:
     enabled: false
@@ -88,4 +85,3 @@ redis:
         resources:
             requests:
                 memory: 64Mi
-
