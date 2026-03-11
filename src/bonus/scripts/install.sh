@@ -46,12 +46,6 @@ install_gitlab() {
 		kubectl exec -n gitlab "$pod" -- curl -sS "$@" 2>/dev/null
 	}
 
-	# Run gitlab-rails commands inside the toolbox pod
-	gitlab_rails() {
-		local pod=$(kubectl get pod -n gitlab -l app=toolbox -o jsonpath='{.items[0].metadata.name}')
-		kubectl exec -n gitlab "$pod" -- gitlab-rails runner "$1"
-	}
-
 	if ! helm status gitlab -n gitlab &>/dev/null; then
 		# Create GitLab secret
 		kubectl create secret generic gitlab-root-password \
@@ -73,11 +67,14 @@ install_gitlab() {
 			sleep 5
 		done
 
-		# Create root token
-		local root_token=$(gitlab_rails "require 'securerandom'; user = User.find_by_username('root') or abort('root user not found'); token_value = SecureRandom.hex(32); token = user.personal_access_tokens.create!(name: \"bootstrap-token-#{Time.now.to_i}\", scopes: [:api], expires_at: 365.days.from_now.to_date); token.set_token(token_value); token.save!; puts token_value")
+		# Create root token via gitlab-rails
+		local toolbox_pod=$(kubectl get pod -n gitlab -l app=toolbox -o jsonpath='{.items[0].metadata.name}')
+		local root_token=$(kubectl exec -n gitlab "$toolbox_pod" -- gitlab-rails runner "require 'securerandom'; user = User.find_by_username('root') or abort('root user not found'); token_value = SecureRandom.hex(32); token = user.personal_access_tokens.create!(name: \"bootstrap-token-#{Time.now.to_i}\", scopes: [:api], expires_at: 365.days.from_now.to_date); token.set_token(token_value); token.save!; puts token_value")
 
 		# Create user vzurera
-		local user_id=$(gitlab_curl --fail-with-body --header "PRIVATE-TOKEN: $root_token" -X POST "http://gitlab-webservice-default.gitlab.svc.cluster.local:8181/api/v4/users" \
+		local user_id=$(gitlab_curl --fail-with-body \
+			--header "PRIVATE-TOKEN: $root_token" \
+			-X POST "http://gitlab-webservice-default.gitlab.svc.cluster.local:8181/api/v4/users" \
 			--data "email=vzurera@gitlab.local" \
 			--data "username=vzurera" \
 			--data "password=$PASSWORD" \
@@ -85,30 +82,43 @@ install_gitlab() {
 			--data "skip_confirmation=true" | jq -r '.id')
 
 		# Create user token
-		local user_token=$(gitlab_curl --fail-with-body --header "PRIVATE-TOKEN: $root_token" -X POST "http://gitlab-webservice-default.gitlab.svc.cluster.local:8181/api/v4/users/$user_id/personal_access_tokens" \
+		local user_token=$(gitlab_curl --fail-with-body \
+			--header "PRIVATE-TOKEN: $root_token" \
+			-X POST "http://gitlab-webservice-default.gitlab.svc.cluster.local:8181/api/v4/users/$user_id/personal_access_tokens" \
 			--data "name=vzurera-token-$(date +%s)" \
 			--data "scopes[]=api" \
 			--data "scopes[]=read_repository" \
 			--data "scopes[]=write_repository" | jq -r '.token')
 
 		# Create repo inception-of-things
-		local project_id=$(gitlab_curl --fail-with-body --header "PRIVATE-TOKEN: $user_token" -X POST "http://gitlab-webservice-default.gitlab.svc.cluster.local:8181/api/v4/projects" \
+		local project_id=$(gitlab_curl --fail-with-body \
+			--header "PRIVATE-TOKEN: $user_token" \
+			-X POST "http://gitlab-webservice-default.gitlab.svc.cluster.local:8181/api/v4/projects" \
 			--data "name=inception-of-things" \
 			--data "initialize_with_readme=true" \
 			--data "visibility=public" | jq -r '.id')
 
-		# Build JSON from the three manifests
-		local deployments=$(base64 -w 0 /tmp/config/repo/deployments.yaml)
-		local ingress=$(base64 -w 0 /tmp/config/repo/ingress.yaml)
-		local services=$(base64 -w 0 /tmp/config/repo/services.yaml)
-		local files_json=$(printf '[
-			{"file_path":"deployments.yaml","content":"%s"},
-			{"file_path":"ingress.yaml","content":"%s"},
-			{"file_path":"services.yaml","content":"%s"}
-		]' "$deployments" "$ingress" "$services")
+		# Build the commit payload
+		local payload=$(jq -n \
+			--arg d "$(base64 -w 0 /tmp/config/repo/deployments.yaml)" \
+			--arg i "$(base64 -w 0 /tmp/config/repo/ingress.yaml)" \
+			--arg s "$(base64 -w 0 /tmp/config/repo/services.yaml)" \
+			'{
+				branch: "main",
+				commit_message: "Upload manifests",
+				actions: [
+					{ action: "create", file_path: "deployments.yaml", content: $d, encoding: "base64" },
+					{ action: "create", file_path: "ingress.yaml",     content: $i, encoding: "base64" },
+					{ action: "create", file_path: "services.yaml",    content: $s, encoding: "base64" }
+				]
+			}')
 
-		# Seed repo with the three manifests
-		gitlab_rails "require 'json'; require 'base64'; project = Project.find($project_id); user = User.find_by_username('vzurera') or abort('user not found'); branch = project.default_branch.presence || 'main'; files = JSON.parse(%q{$files_json}); actions = files.map do |entry|; file_path = entry.fetch('file_path'); action = project.repository.blob_at_branch(branch, file_path) ? :update : :create; { action: action, file_path: file_path, content: Base64.decode64(entry.fetch('content')) }; end; project.repository.commit_files(user, branch_name: branch, message: 'Seed repository manifests', actions: actions) unless actions.empty?"
+		# Push the commit
+		gitlab_curl --fail-with-body \
+			--header "PRIVATE-TOKEN: $user_token" \
+			--header "Content-Type: application/json" \
+			-X POST "http://gitlab-webservice-default.gitlab.svc.cluster.local:8181/api/v4/projects/$project_id/repository/commits" \
+			--data "$payload" > /dev/null
 	fi
 }
 
