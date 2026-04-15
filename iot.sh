@@ -34,9 +34,9 @@ cd "src/$PART" || { echo "Directory src/$PART not found"; exit 1; }
 
 # --- Run vagrant ---
 if [ -n "$MACHINE" ]; then
-	vagrant.exe $VAGRANT_CMD $MACHINE
+	vagrant $VAGRANT_CMD $MACHINE
 else
-	vagrant.exe $VAGRANT_CMD
+	vagrant $VAGRANT_CMD
 fi
 VAGRANT_EXIT=$?
 
