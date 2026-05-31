@@ -14,7 +14,7 @@
 
 # Inception of Things
 
-[README en Espanol](README_es.md)
+[README en Español](README_es.md)
 
 `Inception of Things (IoT)` is a 42 systems project focused on Kubernetes fundamentals through progressive infrastructure exercises.
 
